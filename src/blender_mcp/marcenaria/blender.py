@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 
-from . import cortecloud
+from . import cortecloud, visual
 from .modelo import Peca
 
 MARCA = "marcenaria_gerado"
@@ -55,6 +55,20 @@ for o in list(col.objects):
     if malha is not None and malha.users == 0:
         bpy.data.meshes.remove(malha)
 col["marcenaria_params"] = ARGS["params_json"]
+nome_sub = "Ferragens e Furos - " + movel
+sub = bpy.data.collections.get(nome_sub)
+if sub is not None:
+    alheios = [o.name for o in sub.objects if not o.get(ARGS["marca"])]
+    if alheios:
+        return {"erro": "A subcoleção de ferragens tem objetos que não são do gerador: " + ", ".join(alheios)}
+    for o in list(sub.objects):
+        malha = o.data
+        bpy.data.objects.remove(o, do_unlink=True)
+        if malha is not None and malha.users == 0:
+            bpy.data.meshes.remove(malha)
+else:
+    sub = bpy.data.collections.new(nome_sub)
+    col.children.link(sub)
 
 # 4. Materiais (cor só para visualização)
 def material(nome, padrao):
@@ -89,8 +103,78 @@ for p in ARGS["pecas"]:
         ob[k] = v
     criados.append(ob.name)
 
+# 6. Furos, rasgos e ferragens (só visual): um objeto por grupo
+import math
+from mathutils import Matrix
+CORES = {"furo": (0.03, 0.03, 0.03, 1.0), "metal": (0.6, 0.6, 0.62, 1.0),
+         "aluminio": (0.75, 0.76, 0.78, 1.0), "roldana": (0.1, 0.1, 0.1, 1.0)}
+def mat_visual(nome):
+    nm = "Visual - " + nome
+    m = bpy.data.materials.get(nm)
+    if m is None:
+        m = bpy.data.materials.new(nm)
+        m.use_nodes = True
+    cor = CORES.get(nome, (1, 0, 1, 1))
+    m.diffuse_color = cor
+    b = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if m.node_tree else None
+    if b is not None:
+        b.inputs[0].default_value = cor
+        if nome in ("metal", "aluminio"):
+            try:
+                b.inputs["Metallic"].default_value = 0.8
+            except KeyError:
+                pass
+    return m
+grupos = {}
+for it in ARGS.get("visuais", []):
+    g = grupos.setdefault(it["grupo"], {"vs": [], "fs": [], "mats": [], "midx": [], "pai": it.get("pai")})
+    if it["material"] not in g["mats"]:
+        g["mats"].append(it["material"])
+    mi = g["mats"].index(it["material"])
+    base = len(g["vs"])
+    if it["forma"] == "caixa":
+        x0, y0, z0, x1, y1, z1 = it["caixa"]
+        g["vs"] += [(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)]
+        for f in [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]:
+            g["fs"].append(tuple(base + i for i in f)); g["midx"].append(mi)
+    else:
+        n = 16
+        c, e, r, h = it["centro"], it["eixo"], it["raio"], it["comprimento"]
+        a, b2 = [i for i in range(3) if i != e]
+        for s in (-0.5, 0.5):
+            for k in range(n):
+                p = list(c)
+                p[e] += s * h
+                p[a] += r * math.cos(2 * math.pi * k / n)
+                p[b2] += r * math.sin(2 * math.pi * k / n)
+                g["vs"].append(tuple(p))
+        g["fs"].append(tuple(base + k for k in range(n))); g["midx"].append(mi)
+        g["fs"].append(tuple(base + n + k for k in reversed(range(n)))); g["midx"].append(mi)
+        for k in range(n):
+            k2 = (k + 1) % n
+            g["fs"].append((base + k, base + k2, base + n + k2, base + n + k)); g["midx"].append(mi)
+visuais = []
+for nome, g in grupos.items():
+    malha = bpy.data.meshes.new(nome + " - " + movel)
+    malha.from_pydata(g["vs"], [], g["fs"])
+    malha.update()
+    for m in g["mats"]:
+        malha.materials.append(mat_visual(m))
+    for poly, mi in zip(malha.polygons, g["midx"]):
+        poly.material_index = mi
+    ob = bpy.data.objects.new(nome + " - " + movel, malha)
+    sub.objects.link(ob)
+    ob[ARGS["marca"]] = True
+    ob["tipo"] = "visual (não é peça de corte)"
+    pai = bpy.data.objects.get(g["pai"]) if g["pai"] else None
+    if pai is not None:
+        # preso à peça: se a peça andar (ex.: gaveta aberta), os furos vão junto
+        ob.parent = pai
+        ob.matrix_parent_inverse = Matrix.Translation(-pai.location)
+    visuais.append(ob.name)
+
 bpy.context.view_layer.update()
-return {"criados": criados, "colecao": col.name, "salvo_em": salvo_em}
+return {"criados": criados, "colecao": col.name, "salvo_em": salvo_em, "visuais": visuais}
 '''
 
 # Lê as caixas da coleção para conferir se alguém editou à mão.
@@ -119,7 +203,7 @@ def nome_objeto(p: Peca, movel: str) -> str:
     return f"{p.funcao} - {movel}"
 
 
-def argumentos_modelar(pecas: list[Peca], params: dict, salvar_como=None) -> dict:
+def argumentos_modelar(pecas: list[Peca], params: dict, salvar_como=None, ferragens=None) -> dict:
     movel = params["movel"]
     lista = []
     for p in pecas:
@@ -144,6 +228,7 @@ def argumentos_modelar(pecas: list[Peca], params: dict, salvar_como=None) -> dic
             },
         })
     return {"movel": movel, "pecas": lista, "marca": MARCA, "salvar_como": salvar_como,
+            "visuais": visual.todos(pecas, ferragens, movel),
             "params_json": json.dumps(params, ensure_ascii=False)}
 
 

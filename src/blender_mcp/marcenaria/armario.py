@@ -16,6 +16,8 @@ import math
 
 from .modelo import Furo, Peca, Rasgo
 from .parametros import exigir, numero_positivo
+from .visual import caixa as vcaixa
+from .visual import cilindro as vcil
 
 TOL = 0.01
 EIXOS = {"X": 0, "Y": 1, "Z": 2}
@@ -230,6 +232,7 @@ def calcular(params: dict) -> tuple[list[Peca], dict]:
 
     pecas: list[Peca] = []
     ferragens: list[str] = []
+    visuais: list[dict] = []
     z_base, z_tampo = hr, A - e          # base: z_base..z_base+e ; tampo: z_tampo..A
     z_int0, z_int1 = z_base + e, z_tampo  # vão interno total
     z_vis = z_tampo - T                   # topo visível (abaixo da testeira)
@@ -298,8 +301,14 @@ def calcular(params: dict) -> tuple[list[Peca], dict]:
             tipo = vao["tipo"]
             if tipo == "cabideiro":
                 ferragens.append(f"{nome_mod}: cabideiro (tubo) de {Wm:.0f} mm + 2 suportes")
+                z_tubo = min(topo, z_vis) - 60 if j == len(vaos) - 1 else topo - 60
+                yc = (y_div0 + y_fundo) / 2
+                visuais.append(vcil("Cabideiros", "metal", (x0 + Wm / 2, yc, z_tubo), 0, 12.5, Wm))
+                for xs_ in (x0, x1 - 25):
+                    visuais.append(vcaixa("Cabideiros", "metal", (xs_, yc - 15, z_tubo - 15, xs_ + 25, yc + 15, z_tubo + 25)))
             if tipo == "gavetas":
-                _gavetas(pecas, ferragens, params, gav, nome_mod, x0, x1, z, z + h, y_div0, y_fundo, vao["quantidade"])
+                _gavetas(pecas, ferragens, params, gav, nome_mod, x0, x1, z, z + h, y_div0, y_fundo, vao["quantidade"],
+                         visuais)
             if j < len(vaos) - 1:
                 pecas.append(peca_auto(f"Prateleira {nome_mod} {j + 1}", "Prateleira", "interno", intr, e,
                                        (x0, y_div0, topo, x1, y_fundo, topo + e), "+Z", "X", fint))
@@ -335,16 +344,26 @@ def calcular(params: dict) -> tuple[list[Peca], dict]:
             raise ErroArmario("Portas de correr batem nas divisórias: revise posicoes_y ou profundidade_interna.")
         pecas.append(peca_auto(f"Porta Correr {k + 1}", "Porta Correr", "externo", ext, ep,
                                (xp, y0, zp0, xp + Wp, y0 + ep, zp1), "+Y", "Z", fext, juntas=False))
+    yt0, yt1 = min(planos) - 3, max(planos) + ep + 3
+    visuais.append(vcaixa("Trilhos", "aluminio", (e, yt0, zp1 + 2, L - e, yt1, z_trav)))      # superior
+    visuais.append(vcaixa("Trilhos", "aluminio", (e, yt0, z_int0, L - e, yt1, z_int0 + 6)))   # inferior
+    for k in range(np_):
+        xp = e + k * (vao_l - Wp) / (np_ - 1) if np_ > 1 else e
+        yc = planos[k % len(planos)] + ep / 2
+        for xr in (xp + 70, xp + Wp - 70):
+            raio = (zp0 - z_int0 - 6) / 2
+            visuais.append(vcil("Roldanas e Guias", "roldana", (xr, yc, z_int0 + 6 + raio), 1, raio, 10))
+            visuais.append(vcaixa("Roldanas e Guias", "roldana", (xr - 15, yc - 5, zp1, xr + 15, yc + 5, zp1 + 14)))
     ferragens.append(f"Kit porta de correr: {np_} portas, 2 trilhos de {vao_l:g} mm (superior e inferior), "
                      f"transpasse real {(np_ * Wp - vao_l) / max(np_ - 1, 1):.1f} mm")
 
     juntas = unir_por_contato(pecas, params["uniao"])
     n_cav = sum(1 for p in pecas for f in p.furos if f.origem == "cavilha" and f.tipo == "topo")
     ferragens.append(f"Cavilhas Ø{params['uniao']['cavilha']['diametro']}: {n_cav} un.")
-    return pecas, {"ferragens": ferragens, "juntas": len(juntas)}
+    return pecas, {"ferragens": ferragens, "juntas": len(juntas), "visuais": visuais}
 
 
-def _gavetas(pecas, ferragens, params, gav, nome_mod, x0, x1, z0, z1, y_frente, y_fundo, n):
+def _gavetas(pecas, ferragens, params, gav, nome_mod, x0, x1, z0, z1, y_frente, y_fundo, n, visuais):
     exigir(params, ["gavetas.corredica.comprimento", "gavetas.corredica.desconto_largura_total", "gavetas.folga",
                     "gavetas.desconto_altura", "gavetas.material", "gavetas.espessura_caixa",
                     "gavetas.fundo.material", "gavetas.fundo.padrao", "gavetas.fundo.espessura",
@@ -377,6 +396,10 @@ def _gavetas(pecas, ferragens, params, gav, nome_mod, x0, x1, z0, z1, y_frente, 
                                (x0 + f, y_frente, zf, x1 - f, y_frente + e, zf + h), "+Y", "X", fita, juntas=False))
         zb = zf + gav["desconto_altura"] / 2
         yb1 = yb0 + Db
+        # corrediças: entre a lateral da gaveta e a divisória, no meio da altura da caixa
+        zc = zb + Hb / 2
+        for xa, xb in ((x0, xb0), (xb1, x1)):
+            visuais.append(vcaixa("Corrediças", "metal", (xa + 0.5, yb0, zc - 22.5, xb - 0.5, yb1, zc + 22.5)))
         pecas.append(peca_auto(f"Lateral Esquerda {tag}", "Lateral Gaveta", "gavetas", mat, eg,
                                (xb0, yb0, zb, xb0 + eg, yb1, zb + Hb), "+X", "Y", fita, rasgo=rg))
         pecas.append(peca_auto(f"Lateral Direita {tag}", "Lateral Gaveta", "gavetas", mat, eg,

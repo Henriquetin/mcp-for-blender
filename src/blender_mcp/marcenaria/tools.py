@@ -114,14 +114,17 @@ def register(mcp, get_connection: Callable, pasta_padrao: Path | None = None) ->
         if erro:
             return erro
         try:
-            r = rodar(bl.MODELAR, bl.argumentos_modelar(pecas, p, salvar_como), leitura=False)
+            extras = (_INFO.get(id(pecas)) or {}).get("visuais")
+            r = rodar(bl.MODELAR, bl.argumentos_modelar(pecas, p, salvar_como, extras), leitura=False)
         except Exception as e:  # conexão, addon antigo, erro no Blender
             return f"Não consegui gerar no Blender: {e}"
         if r.get("erro"):
             return r["erro"]
         itens = validacao.validar(pecas, p)
+        vis = ", ".join(r.get("visuais") or []) or "nenhum"
         return (f"Coleção '{r['colecao']}' gerada com {len(r['criados'])} peças (.blend salvo antes: "
-                f"{r['salvo_em']}).\n\n{tabela(pecas, p['movel'])}\n\nValidação prévia:\n{validacao.resumo(itens)}{_ferragens(pecas)}\n\n"
+                f"{r['salvo_em']}). Visual de furos e ferragens (não são peças de corte): {vis}.\n\n"
+                f"{tabela(pecas, p['movel'])}\n\nValidação prévia:\n{validacao.resumo(itens)}{_ferragens(pecas)}\n\n"
                 "Mostre com look (frente, lateral, perspectiva) e PARE até o usuário escrever 'aprovado'.")
 
     @mcp.tool(annotations=_LEITURA)

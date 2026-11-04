@@ -245,3 +245,23 @@ def test_furos_das_duas_faces_que_se_encontram_viram_erro():
     p = motor.calcular(armario())[0]
     p.furos += [Furo("face", 8, 12, u=200, v=200, face="i"), Furo("face", 8, 12, u=200, v=200, face="e")]
     assert any("duas faces" in e for e in validacao._furos_fora(p))
+
+
+def test_furos_visuais_ficam_dentro_da_peca():
+    from blender_mcp.marcenaria import visual
+    for p in motor.calcular(armario()):
+        for it in visual.furos(p, "X"):
+            if it["forma"] != "cilindro":
+                continue
+            c, e, r, h = it["centro"], it["eixo"], it["raio"], it["comprimento"]
+            for i in range(3):
+                meia = h / 2 if i == e else r
+                folga = visual.SALIENCIA + 0.01 if i == e else 0.01
+                assert c[i] - meia >= p.caixa[i] - folga, (p.funcao, it)
+                assert c[i] + meia <= p.caixa[i + 3] + folga, (p.funcao, it)
+
+
+def test_armario_tem_ferragens_visuais():
+    _, info = motor.calcular_com_info(armario())
+    grupos = {v["grupo"] for v in info["visuais"]}
+    assert {"Corrediças", "Trilhos", "Roldanas e Guias", "Cabideiros"} <= grupos
