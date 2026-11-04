@@ -51,13 +51,13 @@ Para esconder as de marcenaria, use `BLENDER_MCP_MARCENARIA=0`.
    uvx mcp-for-blender install-addon
    ```
    No Blender, abra a barra lateral (N), aba "MCP for Blender", e clique em "Connect".
-2. Aponte o seu cliente MCP para esta versão. Exemplo para Claude Desktop/Claude Code, trocando `SEU_USUARIO` pelo dono do fork:
+2. Aponte o seu cliente MCP para esta versão. Exemplo para Claude Desktop/Claude Code, já apontando para o fork:
    ```json
    {
      "mcpServers": {
        "blender": {
          "command": "uvx",
-         "args": ["--from", "git+https://github.com/SEU_USUARIO/blender-mcp@marcenaria", "mcp-for-blender"],
+         "args": ["--from", "git+https://github.com/Henriquetin/mcp-for-blender@marcenaria", "mcp-for-blender"],
          "env": { "MARCENARIA_CATALOGO": "C:/marcenaria/catalogo.json" }
        }
      }
