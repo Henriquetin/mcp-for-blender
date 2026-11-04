@@ -1,0 +1,307 @@
+{
+  "parts": [
+    {
+      "quantity": 2,
+      "c": 400,
+      "l": 300,
+      "function": "Lateral",
+      "complement": "Nicho_Piloto",
+      "c1": "Branco TX 0.45",
+      "c2": null,
+      "l1": null,
+      "l2": null,
+      "material": "Branco TX 15",
+      "machining": {
+        "x": 400,
+        "y": 300,
+        "z": 15,
+        "startSide": 0,
+        "horizontalDrills": [],
+        "verticalDrills": [
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 7.5,
+            "y": 37,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 7.5,
+            "y": 263,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 200,
+            "y": 37,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 200,
+            "y": 241,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 392.5,
+            "y": 37,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "bolthole": false,
+            "x": 392.5,
+            "y": 263,
+            "depth": 12,
+            "diameter": 8,
+            "face": "i"
+          }
+        ],
+        "furrowMachining": {
+          "face": "i",
+          "depth": 8,
+          "width": 6.7,
+          "distance": 15
+        },
+        "furrowMachiningPair": null
+      }
+    },
+    {
+      "quantity": 1,
+      "c": 570,
+      "l": 300,
+      "function": "Base",
+      "complement": "Nicho_Piloto",
+      "c1": "Branco TX 0.45",
+      "c2": null,
+      "l1": null,
+      "l2": null,
+      "material": "Branco TX 15",
+      "machining": {
+        "x": 570,
+        "y": 300,
+        "z": 15,
+        "startSide": 0,
+        "horizontalDrills": [
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 263,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 263,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          }
+        ],
+        "verticalDrills": [],
+        "furrowMachining": {
+          "face": "i",
+          "depth": 8,
+          "width": 6.7,
+          "distance": 15
+        },
+        "furrowMachiningPair": null
+      }
+    },
+    {
+      "quantity": 1,
+      "c": 570,
+      "l": 300,
+      "function": "Tampo",
+      "complement": "Nicho_Piloto",
+      "c1": "Branco TX 0.45",
+      "c2": null,
+      "l1": null,
+      "l2": null,
+      "material": "Branco TX 15",
+      "machining": {
+        "x": 570,
+        "y": 300,
+        "z": 15,
+        "startSide": 0,
+        "horizontalDrills": [
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 263,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 263,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          }
+        ],
+        "verticalDrills": [],
+        "furrowMachining": {
+          "face": "i",
+          "depth": 8,
+          "width": 6.7,
+          "distance": 15
+        },
+        "furrowMachiningPair": null
+      }
+    },
+    {
+      "quantity": 1,
+      "c": 584,
+      "l": 384,
+      "function": "Fundo",
+      "complement": "Nicho_Piloto",
+      "c1": null,
+      "c2": null,
+      "l1": null,
+      "l2": null,
+      "material": "Branco TX 6",
+      "machining": {
+        "x": 584,
+        "y": 384,
+        "z": 6,
+        "startSide": 0,
+        "horizontalDrills": [],
+        "verticalDrills": [],
+        "furrowMachining": null,
+        "furrowMachiningPair": null
+      }
+    },
+    {
+      "quantity": 1,
+      "c": 570,
+      "l": 278,
+      "function": "Prateleira",
+      "complement": "Nicho_Piloto",
+      "c1": "Branco TX 0.45",
+      "c2": null,
+      "l1": null,
+      "l2": null,
+      "material": "Branco TX 15",
+      "machining": {
+        "x": 570,
+        "y": 278,
+        "z": 15,
+        "startSide": 0,
+        "horizontalDrills": [
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 0,
+            "direction": "XP",
+            "x": 0,
+            "y": 241,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 37,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          },
+          {
+            "corner": 1,
+            "direction": "XP",
+            "x": 0,
+            "y": 241,
+            "z": 7.5,
+            "depth": 22,
+            "diameter": 8,
+            "face": "i"
+          }
+        ],
+        "verticalDrills": [],
+        "furrowMachining": null,
+        "furrowMachiningPair": null
+      }
+    }
+  ]
+}

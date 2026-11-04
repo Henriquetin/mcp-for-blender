@@ -1,0 +1,47 @@
+{
+  "movel": "Nicho_Piloto",
+  "tipo": "caixa",
+  "largura": 600,
+  "altura": 400,
+  "profundidade": 300,
+  "caixa": {
+    "material": "Branco TX 15",
+    "padrao": "unicolor",
+    "espessura": 15
+  },
+  "fundo": {
+    "tipo": "rasgo",
+    "material": "Branco TX 6",
+    "padrao": "unicolor",
+    "espessura": 6,
+    "rasgo_largura": 6.7,
+    "rasgo_profundidade": 8,
+    "rasgo_distancia": 15,
+    "folga": 1
+  },
+  "fita": {
+    "nome": "Branco TX 0.45",
+    "padrao": "frente"
+  },
+  "uniao": {
+    "tipo": "cavilha",
+    "distancia_borda": 37,
+    "espacamento_max": 300,
+    "cavilha": {
+      "diametro": 8,
+      "profundidade_face": 12,
+      "profundidade_topo": 22
+    },
+    "minifix": null
+  },
+  "prateleiras": {
+    "quantidade": 1,
+    "recuo_frontal": 0
+  },
+  "portas": null,
+  "chapa": {
+    "c": 2750,
+    "l": 1840,
+    "refilo": 0
+  }
+}

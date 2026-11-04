@@ -348,7 +348,9 @@ Objects can also come from existing libraries (search_assets, then import_asset:
 Sketchfab, Poly Pizza) or be made to order (generate_3d: one new textured model from text or an
 image, 1-3 minutes, may cost the user a credit). A generation is one object, never a whole
 scene, the ground or parts to assemble. Imported and generated models arrive at arbitrary
-scale: use the reported world_bounding_box to size them and put them on the ground."""
+scale: use the reported world_bounding_box to size them and put them on the ground.
+
+Planned MDF furniture (marcenaria, CorteCloud): read marcenaria_guia first and use the marcenaria_* tools."""
 
 # Create the MCP server with lifespan support
 mcp = FastMCP(
@@ -2019,6 +2021,13 @@ async def _import_asset(ctx, source, id, asset_type, target_size, apply_to, reso
             user_prompt=user_prompt)
     except Exception as e:
         return _unavailable(source, e, "import")
+
+
+# Marcenaria: móveis em MDF -> Blender -> CorteCloud (marcenaria/).
+# BLENDER_MCP_MARCENARIA=0 esconde essas ferramentas de quem não usa.
+if os.environ.get("BLENDER_MCP_MARCENARIA", "1") != "0":
+    from .marcenaria import tools as _marcenaria_tools  # noqa: E402
+    _marcenaria_tools.register(mcp, lambda: get_blender_connection())
 
 
 # Guides (guides/, guides.py) are switched off while evals measure what the model

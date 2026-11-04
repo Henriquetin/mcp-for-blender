@@ -1,3 +1,5 @@
+> **Marcenaria (MDF → Blender → CorteCloud):** veja [MARCENARIA.md](MARCENARIA.md).
+
 <div align="center">
 
 <img src="assets/logo-banner.svg" alt="MCP for Blender — Connect Blender to any LLM" width="480" />

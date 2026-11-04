@@ -1,0 +1,11 @@
+{
+  "_comentario": "Exemplo. Troque pelos nomes EXATOS do catálogo da sua central de corte.",
+  "chapa": {"c": 2750, "l": 1840, "refilo": 0},
+  "espessuras": [6, 15, 18, 25],
+  "materiais": [
+    {"nome": "Branco TX 15", "espessura": 15, "padrao": "unicolor"},
+    {"nome": "Branco TX 6", "espessura": 6, "padrao": "unicolor"},
+    {"nome": "Freijó 15", "espessura": 15, "padrao": "amadeirado"}
+  ],
+  "fitas": ["Branco TX 0.45", "Freijó 0.45"]
+}
