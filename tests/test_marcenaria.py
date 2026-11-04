@@ -193,3 +193,55 @@ def test_modelar_salva_antes_de_alterar():
     script = bl.MODELAR
     assert script.index("save_mainfile") < script.index("unit_settings")
     assert script.index("save_mainfile") < script.index("objects.remove")
+
+
+# ------------------------------------------------------------ armário em módulos
+
+def armario():
+    return parametros.modelo("armario")["parametros"]
+
+
+def test_armario_valida_sem_erros():
+    cat = dict(CATALOGO, materiais=CATALOGO["materiais"] + [
+        {"nome": "Branco TX 18", "espessura": 18, "padrao": "unicolor"},
+        {"nome": "Freijó 18", "espessura": 18, "padrao": "amadeirado"}], fitas=["Branco TX 0.45", "Freijó 0.45"])
+    pecas = motor.calcular(armario())
+    assert len(pecas) == 80
+    itens = validacao.validar(pecas, armario(), cat)
+    assert [i["item"] for i in itens if i["status"] in ("erro", "pendente")] == []
+
+
+def test_armario_vaos_fecham_com_a_imagem():
+    pecas = {p.funcao: p for p in motor.calcular(armario())}
+    # maleiro do módulo 1 = resto = 398 (imagem: 397)
+    prat_cab = pecas["Prateleira Modulo 1 3"]
+    assert 2282 - prat_cab.caixa[5] == 398
+    portas = [p for p in pecas.values() if p.funcao_cc == "Porta Correr"]
+    assert len(portas) == 4 and all((p.U, p.V) == (694, 2106) for p in portas)
+
+
+def test_armario_corredica_grande_demais():
+    p = armario()
+    p["gavetas"]["corredica"]["comprimento"] = 420
+    with pytest.raises(ValueError):
+        motor.calcular(p)
+
+
+def test_armario_vaos_que_nao_fecham():
+    p = armario()
+    p["modulos"][2]["vaos"][0]["altura"] = 1700  # sem 'resto'
+    with pytest.raises(ValueError, match="Módulo 3"):
+        motor.calcular(p)
+
+
+def test_armario_cavilhas_nas_duas_faces_da_divisoria():
+    pecas = {p.funcao: p for p in motor.calcular(armario())}
+    faces = {f.face for f in pecas["Divisoria 1"].furos if f.tipo == "face"}
+    assert faces == {"i", "e"}
+
+
+def test_furos_das_duas_faces_que_se_encontram_viram_erro():
+    from blender_mcp.marcenaria.modelo import Furo
+    p = motor.calcular(armario())[0]
+    p.furos += [Furo("face", 8, 12, u=200, v=200, face="i"), Furo("face", 8, 12, u=200, v=200, face="e")]
+    assert any("duas faces" in e for e in validacao._furos_fora(p))

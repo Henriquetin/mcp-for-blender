@@ -9,6 +9,7 @@ from __future__ import annotations
 import difflib
 import itertools
 import json
+import math
 import os
 from pathlib import Path
 
@@ -79,6 +80,12 @@ def _furos_fora(p: Peca):
                 erros.append(f"{p.funcao}: furo de topo Ø{f.diametro:g} não cabe na espessura {p.espessura:g}")
             if f.profundidade > alcance + TOL:
                 erros.append(f"{p.funcao}: furo de topo com {f.profundidade:g} mm atravessa a peça")
+    faces = [f for f in p.furos if f.tipo == "face" and not f.passante]
+    for a, b in itertools.combinations(faces, 2):
+        if a.face != b.face and math.hypot(a.u - b.u, a.v - b.v) < (a.diametro + b.diametro) / 2 \
+                and a.profundidade + b.profundidade >= p.espessura - TOL:
+            erros.append(f"{p.funcao}: furos das duas faces se encontram em u={a.u:g}, v={a.v:g} "
+                         f"({a.origem} x {b.origem})")
     if p.rasgo:
         alcance = p.V if p.rasgo.lado in ("v0", "v1") else p.U
         if p.rasgo.distancia + p.rasgo.largura > alcance + TOL:
@@ -133,11 +140,13 @@ def validar(pecas: list[Peca], params: dict, catalogo=None) -> list[dict]:
     itens = []
 
     # 1. Arredondamento
-    arred = []
+    contagem: dict = {}
     for (parte, info) in convertidas:
         for eixo, bruto, final in (("c", info["c_bruto"], parte["c"]), ("l", info["l_bruto"], parte["l"])):
             if abs(bruto - round(bruto)) > 1e-9:
-                arred.append(f"{info['funcao']}: {eixo} {bruto:.2f} -> {final}")
+                chave = (parte["function"], eixo, round(bruto, 2), final)
+                contagem[chave] = contagem.get(chave, 0) + 1
+    arred = [f"{n}x {func}: {eixo} {bruto:.2f} -> {final}" for (func, eixo, bruto, final), n in contagem.items()]
     itens.append(_item("Medidas inteiras com round() (nunca ceil)", "aviso" if arred else "ok", arred))
 
     # 2. Espessuras do catálogo

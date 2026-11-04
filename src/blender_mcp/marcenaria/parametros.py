@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import copy
 
-TIPOS = ("caixa", "gaveteiro")
+TIPOS = ("caixa", "gaveteiro", "armario")
 
 _FUNDO = {
     "tipo": "rasgo",
@@ -79,6 +79,53 @@ MODELOS = {
     },
 }
 
+MODELOS["armario"] = {
+    "movel": "Guarda_Roupa",
+    "tipo": "armario",
+    "largura": 2750,
+    "altura": 2400,
+    "profundidade": 500,
+    "espessura": 18,
+    "profundidade_interna": 420,
+    "materiais": {
+        "externo": {"material": "Freijó 18", "padrao": "amadeirado"},
+        "interno": {"material": "Branco TX 18", "padrao": "unicolor"},
+    },
+    "fitas": {"Freijó 18": "Freijó 0.45", "Branco TX 18": "Branco TX 0.45"},
+    "fita_padrao": "todas",
+    "rodape": {"altura": 100, "profundidade": 400, "recuo_frontal": 50},
+    "testeira": {"altura": 100},
+    "fundo": {**_FUNDO, "divisoes": 2},
+    "modulos": [
+        {"vaos": [{"tipo": "sapateira", "altura": 185}, {"tipo": "gavetas", "quantidade": 4, "altura": 622},
+                  {"tipo": "cabideiro", "altura": 905}, {"tipo": "maleiro", "altura": "resto"}]},
+        {"vaos": [{"tipo": "cabideiro", "altura": "resto"}, {"tipo": "nicho", "altura": 295},
+                  {"tipo": "nicho", "altura": 295}, {"tipo": "nicho", "altura": 295}, {"tipo": "nicho", "altura": 335}]},
+        {"vaos": [{"tipo": "cabideiro", "altura": "resto"}, {"tipo": "maleiro", "altura": 365}]},
+        {"vaos": [{"tipo": "sapateira", "altura": 185}, {"tipo": "gavetas", "quantidade": 4, "altura": 622},
+                  {"tipo": "cabideiro", "altura": 905}, {"tipo": "maleiro", "altura": "resto"}]},
+    ],
+    "gavetas": {
+        "material": "interno",
+        "espessura_caixa": 18,
+        "folga": 3,
+        "desconto_altura": 40,
+        "corredica": {"comprimento": 380, "desconto_largura_total": 25},
+        "fundo": {**_FUNDO, "rasgo_distancia": 10},
+    },
+    "portas_correr": {
+        "quantidade": 4,
+        "espessura": 18,
+        "transpasse": 20,
+        "folga_inferior": 20,
+        "folga_superior": 20,
+        "posicoes_y": [5, 30],
+    },
+    "uniao": {"tipo": "cavilha", "distancia_borda": 37, "espacamento_max": 300,
+              "cavilha": {"diametro": 8, "profundidade_face": 12, "profundidade_topo": 22}},
+    "chapa": {"c": 2750, "l": 1840, "refilo": 0},
+}
+
 EXEMPLO_PORTAS = {
     "quantidade": 2,
     "material": "Branco TX 15",
@@ -115,6 +162,17 @@ CONFIRMAR = {
         "gavetas.corredica: comprimento e desconto_largura_total (ficha técnica)",
         "gavetas.caixa.desconto_altura e folgas das frentes",
         "fita.nome e padrao",
+        "chapa: c x l e refilo",
+    ],
+    "armario": [
+        "largura/altura/profundidade, espessura e profundidade_interna (divisórias)",
+        "materiais externo/interno e fitas (nomes exatos do catálogo)",
+        "rodapé (altura, profundidade, recuo) e testeira",
+        "módulos: vãos de baixo para cima, altura visível; um vão por módulo pode ser 'resto'",
+        "portas_correr: ficha do kit (transpasse, folgas dos trilhos, posições y dos trilhos)",
+        "gavetas: corrediça (comprimento, desconto), folga e desconto_altura",
+        "fundo em rasgo e em quantas partes",
+        "uniao: cavilha (ficha)",
         "chapa: c x l e refilo",
     ],
 }

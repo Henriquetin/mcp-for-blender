@@ -363,8 +363,19 @@ def _gavetas(params, pecas, ctx):
 
 # -------------------------------------------------------------- ponto único
 
+def calcular_com_info(params: dict):
+    """(peças, info). info traz ferragens no armário em módulos."""
+    if params.get("tipo") == "armario":
+        from . import armario
+        return armario.calcular(params)
+    return calcular(params), {"ferragens": []}
+
+
 def calcular(params: dict) -> list[Peca]:
     """Gera as peças do móvel. Levanta ParametrosFaltando/ErroProjeto/ValueError."""
+    if params.get("tipo") == "armario":
+        from . import armario
+        return armario.calcular(params)[0]
     exigir(params, ["movel", "tipo", "largura", "altura", "profundidade", "caixa.material", "caixa.padrao",
                     "caixa.espessura", "fundo.tipo", "fita.padrao", "uniao.tipo"])
     if params["tipo"] not in TIPOS:

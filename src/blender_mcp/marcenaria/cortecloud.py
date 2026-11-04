@@ -91,7 +91,7 @@ def peca_para_cortecloud(p: Peca, complemento: str) -> tuple[dict, dict]:
             x, y = _xy(rot, p, f.u, f.v)
             verticais.append({"corner": 0, "bolthole": bool(f.passante), "x": _num(x), "y": _num(y),
                               "depth": _num(p.espessura if f.passante else f.profundidade),
-                              "diameter": _num(f.diametro), "face": "i"})
+                              "diameter": _num(f.diametro), "face": f.face})
         else:
             lado_cc = mapa[f.lado]
             # ponto na borda, em u/v locais

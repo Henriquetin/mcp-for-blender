@@ -37,6 +37,7 @@ class Furo:
     pos: float = 0.0
     z: float = 0.0
     passante: bool = False
+    face: str = "i"  # "i" (interna) ou "e" (externa; só furos de face)
     origem: str = ""  # "cavilha", "minifix-tambor", "caneco"... só para conferência
 
 
@@ -68,6 +69,11 @@ class Peca:
 
     U_bruto: float = 0.0
     V_bruto: float = 0.0
+    # Referencial no mundo (preenchido por armario.peca_auto); None nas peças do motor antigo.
+    eixo_u: tuple | None = None
+    eixo_v: tuple | None = None
+    normal_i: tuple | None = None
+    juntas: bool = True  # recebe/dá cavilhas quando encosta em outra peça
 
     def __post_init__(self):
         """Arredonda c/l com round() (nunca ceil) já na criação.

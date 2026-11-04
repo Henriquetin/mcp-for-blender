@@ -15,6 +15,13 @@ from . import blender as bl
 from . import cortecloud, motor, parametros, validacao
 
 _LEITURA = ToolAnnotations(readOnlyHint=True)
+_INFO: dict = {}
+
+
+def _ferragens(pecas) -> str:
+    info = _INFO.pop(id(pecas), None) or {}
+    itens = info.get("ferragens") or []
+    return ("\n\nFerragens (não entram no corte):\n" + "\n".join(f"- {i}" for i in itens)) if itens else ""
 
 
 def _params(params: Any) -> dict:
@@ -28,7 +35,9 @@ def _params(params: Any) -> dict:
 def _calcular(params):
     """(pecas, None) ou (None, mensagem de erro para o modelo repassar)."""
     try:
-        return motor.calcular(params), None
+        pecas, info = motor.calcular_com_info(params)
+        _INFO[id(pecas)] = info
+        return pecas, None
     except parametros.ParametrosFaltando as e:
         return None, ("PARE e pergunte ao usuário (não invente): faltam " + ", ".join(e.faltando)
                       + ". Use marcenaria_modelo para ver o formato.")
@@ -68,7 +77,8 @@ def register(mcp, get_connection: Callable, pasta_padrao: Path | None = None) ->
     @mcp.tool(annotations=_LEITURA)
     def marcenaria_modelo(tipo: str = "caixa") -> str:
         """Modelo de parâmetros para o briefing. tipo: 'caixa' (nicho/armário, com prateleiras e portas
-        opcionais) ou 'gaveteiro'. Os valores são sugestões: confirme cada item de `confirmar` com o usuário."""
+        opcionais), 'gaveteiro' ou 'armario' (módulos com vãos, rodapé, testeira,
+        gavetas internas e portas de correr). Os valores são sugestões: confirme cada item de `confirmar` com o usuário."""
         try:
             return json.dumps(parametros.modelo(tipo), ensure_ascii=False, indent=2)
         except ValueError as e:
@@ -88,7 +98,7 @@ def register(mcp, get_connection: Callable, pasta_padrao: Path | None = None) ->
             return erro
         itens = validacao.validar(pecas, p, catalogo)
         return (f"{p['movel']}: {len(pecas)} peças\n\n{tabela(pecas, p['movel'])}\n\n"
-                f"Validação:\n{validacao.resumo(itens)}")
+                f"Validação:\n{validacao.resumo(itens)}{_ferragens(pecas)}")
 
     @mcp.tool()
     def marcenaria_modelar(params: dict | str, salvar_como: str | None = None) -> str:
@@ -111,7 +121,7 @@ def register(mcp, get_connection: Callable, pasta_padrao: Path | None = None) ->
             return r["erro"]
         itens = validacao.validar(pecas, p)
         return (f"Coleção '{r['colecao']}' gerada com {len(r['criados'])} peças (.blend salvo antes: "
-                f"{r['salvo_em']}).\n\n{tabela(pecas, p['movel'])}\n\nValidação prévia:\n{validacao.resumo(itens)}\n\n"
+                f"{r['salvo_em']}).\n\n{tabela(pecas, p['movel'])}\n\nValidação prévia:\n{validacao.resumo(itens)}{_ferragens(pecas)}\n\n"
                 "Mostre com look (frente, lateral, perspectiva) e PARE até o usuário escrever 'aprovado'.")
 
     @mcp.tool(annotations=_LEITURA)
